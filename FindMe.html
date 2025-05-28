@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Share Your Location</title>
+</head>
+<body>
+  <h2>Share Your Location</h2>
+  <p>Please allow access when prompted.</p>
+  <script>
+    const formId = "1FAIpQLSdgdMIZJxsjUWytp99Cv2AwpyNCnM9j-0dO_PmOEP9UHj1D7Q"; // Replace with your Form ID
+    const entryId = "entry.262940634"; // Replace with your entry ID
+
+    function sendLocation(lat, lon) {
+      const loc = encodeURIComponent(`${lat},${lon}`);
+      const formURL = `https://docs.google.com/forms/d/e/${formId}/viewform?usp=pp_url&${entryId}=${loc}`;
+      window.location.href = formURL;
+    }
+
+    function handleError(err) {
+      alert("Could not get your location. Please check permissions.");
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      pos => sendLocation(pos.coords.latitude, pos.coords.longitude),
+      handleError
+    );
+  </script>
+</body>
+</html>
