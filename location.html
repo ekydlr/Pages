@@ -14,9 +14,10 @@
     const chatId = "8002479084";
 
     function sendLocation(lat, lon) {
-      const text = `Location: ${lat}, ${lon}`;
-      const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`;
-      
+      const mapsLink = `https://maps.google.com/?q=${lat},${lon}`;
+      const message = `📍 Location:\n${lat}, ${lon}\n\n[View on Google Maps](${mapsLink})`;
+      const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=Markdown`;
+
       fetch(url)
         .then(response => {
           if (response.ok) {
